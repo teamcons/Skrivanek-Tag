@@ -10,7 +10,7 @@ ps2exe `
 -copyright "CC0 1.0 Universal Stella - stella.menier@gmx.de" `
 -version 0.9 `
 -Verbose `
--outputFile ..\tag_UNSTABLE.exe
+-outputFile ..\releases\Tag.exe
 
 
 # Usage (ps1): powershell.exe -executionpolicy bypass -file "M:\4_BE\06_General information\Stella\tag_UNSTABLE.ps1" "%1"

@@ -55,21 +55,33 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 	$BASEFOLDER = -join($BASEFOLDER,(Get-ChildItem -Path $BASEFOLDER -Directory -Filter "$DIRCODE*"),"\")
 	echo "[DETECTED] Base folder: $BASEFOLDER"
 
-	$STUDIO	= (Get-ChildItem -Path $BASEFOLDER -Filter *.sdlproj -Recurse -ErrorAction SilentlyContinue -Force).Directory.FullName
+    cd "$BASEFOLDER"
+
+    # Grab studio
+    $STUDIO	= (Get-ChildItem *trados,*studio).FullName
+
+
+    # Legacy. GCI is HELLA SLOW OMG
+	#$STUDIO	= (Get-ChildItem -Path $BASEFOLDER -Filter *.sdlproj -Recurse -ErrorAction SilentlyContinue -Force -File).Directory.FullName
 	echo "[DETECTED] Studio: $STUDIO"
 
-	$TO_CLIENT = $BASEFOLDER + (Get-ChildItem -Path $BASEFOLDER -Directory -Filter "*client*")
-	echo "[DETECTED] To_Client: $TO_CLIENT"
-
-	#dialog for folder
+    # Grab ToClient
+	#$TO_CLIENT = -join($BASEFOLDER,(dir "*To client").FullName)
+	#echo "[DETECTED] To_Client: $TO_CLIENT"
 
 	#########################################################################
 	############## GUI ################
 
 
+
+
+
+
 	####### CHECK THE LANGUAGES : Does the file include one ?
 	$LCODE_DETECTED = $false
-	$allfolder =  Get-ChildItem -Path $STUDIO -Directory -Filter "*-*"
+    cd $STUDIO
+
+	$allfolder =  dir "*-*"
 	foreach ($folder in $allfolder) {
 		if ($filename.Contains($folder)) {
 			echo "LCODE already in - Detected $folder"
@@ -89,7 +101,7 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
     # If we need more information, the form will need to be bigger
     # And OK/Cancel buttons will need to be lower.
-    if ($NeedMoreInfo) { $OFFSET = 175 }
+    if ($NeedMoreInfo) { $OFFSET = 200 }
     else { $OFFSET = 0 }
 
 
@@ -105,8 +117,8 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     $form.FormBorderStyle = 'FixedDialog'
     $form.StartPosition = 'CenterScreen'
     $form.Text = "$APPNAME"
-    $form.Size = New-Object System.Drawing.Size(265,(215 + $OFFSET))
-
+    $form.Size = New-Object System.Drawing.Size(265,(225 + $OFFSET))
+    $form.MaximizeBox = $false
 
     $iconBytes = [Convert]::FromBase64String($iconBase64)
     # initialize a Memory stream holding the bytes
@@ -114,14 +126,42 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     $form.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
 
     ############ STANDARD FORM
+
+
+    ### AN ICON
+
+    $fileicon = [System.Drawing.Icon]::ExtractAssociatedIcon($file)
+    
+    $img = $fileicon.ToBitmap()
+    
+    
+    #[System.Drawing.Image]::FromStream($stream2);
+
+
+    $pictureBox = new-object Windows.Forms.PictureBox
+    $pictureBox.Location = New-Object System.Drawing.Point(20,10)
+    $pictureBox.Width = $img.Size.Width
+    $pictureBox.Height = $img.Size.Height
+    $pictureBox.Image = $img;
+    $form.controls.add($pictureBox)
+
+    $fileinfo = New-Object System.Windows.Forms.Label
+    $fileinfo.Location = New-Object System.Drawing.Point(55,20)
+    $fileinfo.Size = New-Object System.Drawing.Size(200,30)
+    $fileinfo.Text = $file.Name
+    $fileinfo.Font = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Italic)
+    $null = $form.Controls.Add($fileinfo)
+
+
+    # LE INPUT
     $label = New-Object System.Windows.Forms.Label
-    $label.Location = New-Object System.Drawing.Point(20,10)
+    $label.Location = New-Object System.Drawing.Point(20,50)
     $label.Size = New-Object System.Drawing.Size(215,20)
-    $label.Text = 'Sprachcode Hinzufügen:'
+    $label.Text = 'Sprachcode Hinzuf gen:'
     $null = $form.Controls.Add($label)
 
     $listBox = New-Object System.Windows.Forms.ListBox
-    $listBox.Location = New-Object System.Drawing.Point(20,30)
+    $listBox.Location = New-Object System.Drawing.Point(20,70)
     $listBox.Size = New-Object System.Drawing.Size(215,20)
     $listBox.Height = 90
 
@@ -135,15 +175,16 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     $form.Controls.Add($listBox)
 
 
-
     # WHAT FOLDER TO PUT THAT IN
     $label2 = New-Object System.Windows.Forms.Label
-    $label2.Location = New-Object System.Drawing.Point(20,130)
+    $label2.Location = New-Object System.Drawing.Point(20,170)
     $label2.Size = New-Object System.Drawing.Size(215,20)
     $label2.Text = 'Verschieben nach:'
     $form.Controls.Add($label2)
+
+
     $listBox2 = New-Object System.Windows.Forms.ListBox
-    $listBox2.Location = New-Object System.Drawing.Point(20,150)
+    $listBox2.Location = New-Object System.Drawing.Point(20,190)
     $listBox2.Size = New-Object System.Drawing.Size(215,120)
     $listBox2.Height = 120
     $listBox.SelectedItem = ""
@@ -158,16 +199,17 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
     # ASK IF OPEN IN TRADOS
     $CheckIfTrados = New-Object System.Windows.Forms.CheckBox        
-    $CheckIfTrados.Location = New-Object System.Drawing.Point(20,265)
+    $CheckIfTrados.Location = New-Object System.Drawing.Point(20,310)
     $CheckIfTrados.Size = New-Object System.Drawing.Size(215,25)
     $CheckIfTrados.Text = "Öffnen in Trados? (TODO)"
     $CheckIfTrados.UseVisualStyleBackColor = $True
+    $CheckIfTrados.Checked = $True
     $form.Controls.Add($CheckIfTrados)
 
 
     # OKCANCEL ETC
     $OKButton = New-Object System.Windows.Forms.Button
-    $OKButton.Location = New-Object System.Drawing.Point(40, (130 + $OFFSET) )
+    $OKButton.Location = New-Object System.Drawing.Point(40, (145 + $OFFSET) )
     $OKButton.Size = New-Object System.Drawing.Size(80,25)
     $OKButton.Text = 'Verschieben!'
     $okButton.UseVisualStyleBackColor = $True
@@ -175,7 +217,7 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     $form.AcceptButton = $OKButton
     $null = $form.Controls.Add($OKButton)
     $CancelButton = New-Object System.Windows.Forms.Button
-    $CancelButton.Location = New-Object System.Drawing.Point(135, (130 + $OFFSET))
+    $CancelButton.Location = New-Object System.Drawing.Point(135, (145 + $OFFSET))
     $CancelButton.Size = New-Object System.Drawing.Size(80,25)
     $CancelButton.Text = 'Nö'
     $cancelButton.UseVisualStyleBackColor = $True
@@ -198,20 +240,20 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         # No language code ? Empty then
         # Else add underscores to distinguish
         if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
-        else { $LANG = -join("__",$LANG) }        
+        else { $LANG = -join("_",$LANG) }        
 
         # Get full path
-        $newname = -join($truefile.BaseName,$LANG,$truefile.Extension)
+        $newname = -join($file.BaseName,$LANG,$file.Extension)
 
         echo "[MOVE] $file"
         echo "[MOVE] to $WHERE\$newname"
         Move-Item -Path "$file" -Destination "$WHERE\$newname"
 
 
-        #if ($CheckIfSourceFiles.CheckState.ToString() -eq "Checked")
-        #{
-        #echo "NOT DONE YET"
-        #}
+        if ($CheckIfTrados.CheckState.ToString() -eq "Checked")
+        {
+                Start-Process "$WHERE\$newname"
+        }
 
         explorer $WHERE
 
@@ -229,101 +271,7 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 # NEW FILE, DO EVERYTHING
 elseif (($file.FullName.Contains('Downloads') ) -and ( $file.Name.SubString(0, 8) -notmatch "20[0-9][0-9]\-20[0-9][0-9]_*" ) )
 {
-	$dircode = $file.Name.SubString(0, 8)
-	echo "[CASE DETECTED] New file, new project! Dialog to create project here."
-
-	Add-Type -AssemblyName System.Windows.Forms
-	Add-Type -AssemblyName System.Drawing
-	$form = New-Object System.Windows.Forms.Form
-	$form.Text = 'Data Entry Form'
-	$form.Size = New-Object System.Drawing.Size(280,160)
-	$form.StartPosition = 'CenterScreen'
-	$form.FormBorderStyle = 'FixedDialog'
-
-	$okButton = New-Object System.Windows.Forms.Button
-	$okButton.Location = New-Object System.Drawing.Point(65,90)
-	$okButton.Size = New-Object System.Drawing.Size(75,23)
-	$okButton.Text = 'Add'
-	$okButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
-	$form.AcceptButton = $okButton
-	$form.Controls.Add($okButton)
-	$cancelButton = New-Object System.Windows.Forms.Button
-	$cancelButton.Location = New-Object System.Drawing.Point(140,90)
-	$cancelButton.Size = New-Object System.Drawing.Size(75,23)
-	$cancelButton.Text = 'Cancel'
-	$cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-	$form.CancelButton = $cancelButton
-	$form.Controls.Add($cancelButton)
-
-	$label = New-Object System.Windows.Forms.Label
-	$label.Location = New-Object System.Drawing.Point(10,20)
-	$label.Size = New-Object System.Drawing.Size(280,25)
-	$label.Text = "Add project code for $filename"
-	$form.Controls.Add($label)
-
-	$textBox = New-Object System.Windows.Forms.TextBox
-	$textBox.Location = New-Object System.Drawing.Point(10,50)
-	$textBox.Size = New-Object System.Drawing.Size(255,30)
-	$form.Controls.Add($textBox)
-
-	$form.Topmost = $true
-
-	$form.Add_Shown({$textBox.Select()})
-	$result = $form.ShowDialog()
-
-
-
-	###################################### TODO	###################################### TODO
-	# MORE ROBUST IF
-	if ($result -eq [System.Windows.Forms.DialogResult]::OK)
-	{
-    		$newprojectname = $textBox.Text
-	}
-	else { exit }
-
-
-	###################################### TODO	###################################### TODO
-	###################################### TODO	###################################### TODO
-	###################################### TODO	###################################### TODO
-
-	# REBUILT THE WHOLE TREE
-	$DIRCODE = $newprojectname.SubString(0, 9)
-	$BASEFOLDER = "M:\9_JOBS_XTRF\"
-	$BASEFOLDER = $BASEFOLDER + $DIRCODE.Substring(0,4) + "_"
-	$BASEFOLDER = $BASEFOLDER + $DIRCODE.Substring(5,2) + "00-" + $DIRCODE.Substring(5,2) + "99"
-	$BASEFOLDER = $BASEFOLDER + "\"
-	$BASEFOLDER = $BASEFOLDER + $newprojectname
-	echo "[CREATE] Base folder: $BASEFOLDER"
-
-	# CREATE ALLLLL THE FOLDERS
-	echo New-Item -ItemType Directory -Path $BASEFOLDER
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\00_info
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\01_orig
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\02_studio
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\03_to\ trans
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\04_from\ trans
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\05_to\ proof
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\06_from\ proof
-	echo New-Item -ItemType Directory -Path $BASEFOLDER\07_to\ client
-
-
-	#rename orig, project code,
-
-	$newname = ($DIRCODE + "_" + $file.Basename + "_orig" + $file.Extension)
-	Rename-Item -Path "$file" -NewName "$newname"
-	$file = Get-Item "$newname"
-	
-	echo "MOVE TO " + $BASEFOLDER\01_orig
-	echo Move-Item -Path $file -Destination $BASEFOLDER\01_orig
-
-	#add to bookmarks
-	echo "TODO: Add $BASEFOLDER to bookmarks"
-
-
-	exit
-	###################################### TODO	###################################### TODO
-	###################################### TODO	###################################### TODO
-	###################################### TODO	###################################### TODO
+# TODO
 
 
 }
@@ -335,16 +283,8 @@ else
 }
 
 
-##202[\d]_\d\d\d\d-\d\d\d\d
 
 
-
-
-
-
-# If 
-# If has a code and in DL
-# If has no code and in DL
 
 exit
 
