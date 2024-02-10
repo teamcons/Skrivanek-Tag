@@ -1,0 +1,14 @@
+ps2exe `
+-inputFile ..\src\Skrivanek-Rocketlaunch.ps1 `
+-iconFile ..\assets\Rocketlaunch-Icon.ico `
+-noConsole `
+-noOutput `
+-exitOnCancel `
+-title "-Rocketlaunch! - Fuer Skrivanek" `
+-description "Schnell ein projekt erstellen!" `
+-company "Skrivanek GmbH" `
+-product "Rocketlaunch!" `
+-copyright "CC0 1.0 Universal Stella <stella.menier@gmx.de>" `
+-version 1.0 `
+-Verbose `
+-outputFile ..\releases\Skrivanek-Rocketlaunch.exe

@@ -1,0 +1,9 @@
+﻿Minimal;Translation, Editing, Proofreading;TEP + In-House Check;Sworn Translation;Nur Proofreading;MemoQ;Production;Astrid Style
+00_info;00_info;00_info;00_info;00_info;00_info;00_info;00_info
+01_orig;01_orig;01_orig;01_orig;01_orig;01_orig;;01_orig
+;02_trados;02_trados;02_to proof;03_to client;02_MemoQ;;02_studio
+;03_to trans;03_to TEP;03_to client;;03_to client;;03_trans
+;04_from trans;04_from TEP;;;;;04_proof
+;05_to proof;05_to client;;;;;05_to client
+;06_from proof;;;;;;
+;07_to client;;;;;;
