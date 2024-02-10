@@ -1,21 +1,65 @@
+#================================================================================================================================
 
-# CC-BY-SA-NC Stella MÃ©nier <stella.menier@gmx.de>
-# Auto renamer following ISO Format for Skrivanek GmbH
-# Usage: powershell.exe -noprofile -executionpolicy bypass -file "M:\4_BE\06_General information\Stella\tag_UNSTABLE.ps1" "%1"
+#----------------INFO----------------
+#
+# CC-BY-SA-NC Stella Ménier <stella.menier@gmx.de>
+# Project creator for Skrivanek GmbH
+#
+# Usage add: powershell.exe -executionpolicy bypass -file ".\Rocketlaunch.ps1" "%1"
+# Usage: Compiled form, just double-click.
+#
+#
+#----------------STEPS----------------
+#
+# Initialization
+# GUI
+# Processing Input
+# Build the project
+# Bonus
+#
+#-------------------------------------
 
-############ INITIALIZATION ############
-# Get all important variables in place
 
+#===============================================
+#                Initialization                =
+#===============================================
 
 param([String]$arg)
 if (!$arg) 
 {
-        Add-Type -AssemblyName PresentationCore,PresentationFramework
-	$msgBody = "Cannot detect filename :("
-	[System.Windows.MessageBox]::Show($msgBody)
+        Add-Type -AssemblyName System.Windows.Forms
+
+	$ERRORTEXT="No! Usage: Right-click on file to process
+->Open With->Program on your PC->This executable"
+
+	$btn = [System.Windows.Forms.MessageBoxButtons]::OK
+	$ico = [System.Windows.Forms.MessageBoxIcon]::Information
+
+	Add-Type -AssemblyName System.Windows.Forms 
+	[void] [System.Windows.Forms.MessageBox]::Show($ERRORTEXT,$APPNAME,$btn,$ico)
 	exit
 }
 
+
+
+# Fancy !
+Write-Output "======================"
+Write-Output "=        TAG!        ="
+Write-Output "======================"
+
+Write-Output ""
+Write-Output "For Skrivanek GmbH - Manage files really, really quick!"
+Write-Output "CC0 Stella Ménier, Project manager Skrivanek BELGIUM - <stella.menier@gmx.de>"
+Write-Output "Git: https://github.com/teamcons/Skrivanek-Tag"
+Write-Output ""
+Write-Output ""
+
+
+
+
+
+#========================================
+# Get all important variables in place 
 
 $APPNAME = "Tag!"
 $path_to_file = $arg
@@ -23,9 +67,9 @@ $file = (Get-Item $arg)
 $parent = $file.Directory.Parent.Name
 $filename = $file.Name
 
-Write-Host "[TAG - ISO RENAMER TOOL] For Skrivanek - By Stella MÃ©nier - stella.menier@gmx.de"
-Write-Host "[PARAMETER] File: $filename"
-Write-Host ""
+
+Write-Output "[PARAMETER] File: $filename"
+Write-Output ""
 
 
 
@@ -36,15 +80,33 @@ $iconBase64 = "AAABAAEAAAAAAAEAIACVOAAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAEAAAABAAgGA
 # Big sentence innit
 
 
-############ ENVIRONMENT DETECTION ############
+
+
+
+#======================================================
+#                ENVIRONMENT DETECTION                =
+#======================================================
+
+
+# if it has a code
+# --> Rebuild tree
+# -> If its in Downloads, it is a downloaded package, we may have to move and rename it.
+
+# if it doesnt have any code, it may be a new file we need to build a project for
+# or something else. Then idk
+
 
 
 $file_ninefirst_characters = $file.Name.SubString(0, 9)
-echo "Attempt at dircode: $file_ninefirst_characters"
-if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
+Write-Output "[DETECTED] Attempt at dircode: $file_ninefirst_characters"
 
+
+#==============
+# It if has a code
+if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 {
-	echo "[CASE DETECTED] Uprooted file, should relocate. Use a GUI.."
+
+
 	# REBUILT THE WHOLE TREE
 	$DIRCODE = $file_ninefirst_characters
 	$BASEFOLDER = "M:\9_JOBS_XTRF\"
@@ -53,323 +115,341 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 	$BASEFOLDER = -join($BASEFOLDER,"\")
 
 	$BASEFOLDER = -join($BASEFOLDER,(Get-ChildItem -Path $BASEFOLDER -Directory -Filter "$DIRCODE*"),"\")
-	echo "[DETECTED] Base folder: $BASEFOLDER"
+	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
+
 
     cd "$BASEFOLDER"
 
     # Grab studio
     $STUDIO	= (Get-ChildItem *trados,*studio).FullName
+	Write-Output "[DETECTED] Studio: $STUDIO"
 
 
-    # Legacy. GCI is HELLA SLOW OMG
-	#$STUDIO	= (Get-ChildItem -Path $BASEFOLDER -Filter *.sdlproj -Recurse -ErrorAction SilentlyContinue -Force -File).Directory.FullName
-	echo "[DETECTED] Studio: $STUDIO"
-
-    # Grab ToClient
-	#$TO_CLIENT = -join($BASEFOLDER,(dir "*To client").FullName)
-	#echo "[DETECTED] To_Client: $TO_CLIENT"
-
-	#########################################################################
-	############## GUI ################
+    #Grab ToClient
+	$TO_CLIENT = (Get-ChildItem *client).FullName
+	Write-Output "[DETECTED] To_Client: $TO_CLIENT"
 
 
 
-
-
-
-	####### CHECK THE LANGUAGES : Does the file include one ?
-	$LCODE_DETECTED = $false
-    cd $STUDIO
-
-	$allfolder =  dir "*-*"
-	foreach ($folder in $allfolder) {
-		if ($filename.Contains($folder)) {
-			echo "LCODE already in - Detected $folder"
-			[bool] $LCODE_DETECTED = $true
-			$LCODE = $folder } }
-
-	echo "LCODE_DETECTED: $LCODE_DETECTED"
-
-
-
-	#########################################################################
-
-
-
-    # If this one is set, ask for more info
-    [bool] $NeedMoreInfo = $true
-
-    # If we need more information, the form will need to be bigger
-    # And OK/Cancel buttons will need to be lower.
-    if ($NeedMoreInfo) { $OFFSET = 200 }
-    else { $OFFSET = 0 }
-
-
-
-    ## Create a window
-    Add-Type -AssemblyName System.Windows.Forms
-    Add-Type -AssemblyName System.Drawing
-
-    # Lets look cool
-    [void] [System.Windows.Forms.Application]::EnableVisualStyles() 
-
-    $form = New-Object System.Windows.Forms.Form
-    $form.FormBorderStyle = 'FixedDialog'
-    $form.StartPosition = 'CenterScreen'
-    $form.Text = "$APPNAME"
-    $form.Size = New-Object System.Drawing.Size(265,(225 + $OFFSET))
-    $form.MaximizeBox = $false
-
-    $iconBytes = [Convert]::FromBase64String($iconBase64)
-    # initialize a Memory stream holding the bytes
-    $stream = [System.IO.MemoryStream]::new($iconBytes, 0, $iconBytes.Length)
-    $form.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
-
-    ############ STANDARD FORM
-
-
-    ### AN ICON
-
-    $fileicon = [System.Drawing.Icon]::ExtractAssociatedIcon($file)
-    
-    $img = $fileicon.ToBitmap()
-    
-    
-    #[System.Drawing.Image]::FromStream($stream2);
-
-
-    $pictureBox = new-object Windows.Forms.PictureBox
-    $pictureBox.Location = New-Object System.Drawing.Point(20,10)
-    $pictureBox.Width = $img.Size.Width
-    $pictureBox.Height = $img.Size.Height
-    $pictureBox.Image = $img;
-    $form.controls.add($pictureBox)
-
-    $fileinfo = New-Object System.Windows.Forms.Label
-    $fileinfo.Location = New-Object System.Drawing.Point(55,20)
-    $fileinfo.Size = New-Object System.Drawing.Size(200,30)
-    $fileinfo.Text = $file.Name
-    $fileinfo.Font = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Italic)
-    $null = $form.Controls.Add($fileinfo)
-
-
-    # LE INPUT
-    $label = New-Object System.Windows.Forms.Label
-    $label.Location = New-Object System.Drawing.Point(20,50)
-    $label.Size = New-Object System.Drawing.Size(215,20)
-    $label.Text = 'Sprachcode Hinzuf gen:'
-    $null = $form.Controls.Add($label)
-
-    $listBox = New-Object System.Windows.Forms.ListBox
-    $listBox.Location = New-Object System.Drawing.Point(20,70)
-    $listBox.Size = New-Object System.Drawing.Size(215,20)
-    $listBox.Height = 90
-
-
-    # Get all codes + default
-    [void] $listBox.Items.Add("(Kein sprachcode, danke!)") 
-    $listBox.SelectedItem = "(Kein sprachcode, danke!)"
-    $allfolder =  Get-ChildItem -Path $STUDIO -Directory -Filter "*-*"
-    foreach ($folder in $allfolder)
-    { $null = $listBox.Items.Add($folder.Name) }
-    $form.Controls.Add($listBox)
-
-
-    # WHAT FOLDER TO PUT THAT IN
-    $label2 = New-Object System.Windows.Forms.Label
-    $label2.Location = New-Object System.Drawing.Point(20,170)
-    $label2.Size = New-Object System.Drawing.Size(215,20)
-    $label2.Text = 'Verschieben nach:'
-    $form.Controls.Add($label2)
-
-
-    $listBox2 = New-Object System.Windows.Forms.ListBox
-    $listBox2.Location = New-Object System.Drawing.Point(20,190)
-    $listBox2.Size = New-Object System.Drawing.Size(215,120)
-    $listBox2.Height = 120
-    $listBox.SelectedItem = ""
-
-    # Get all subdirectories
-    $allfolder =  Get-ChildItem -Path $BASEFOLDER -Directory
-    foreach ($folder in $allfolder)
-        { $null = $listBox2.Items.Add($folder) }
-    $form.Controls.Add($listBox2) ######IF RELEVANT
-
-
-
-    # ASK IF OPEN IN TRADOS
-    $CheckIfTrados = New-Object System.Windows.Forms.CheckBox        
-    $CheckIfTrados.Location = New-Object System.Drawing.Point(20,310)
-    $CheckIfTrados.Size = New-Object System.Drawing.Size(215,25)
-    $CheckIfTrados.Text = "Öffnen in Trados? (TODO)"
-    $CheckIfTrados.UseVisualStyleBackColor = $True
-    $CheckIfTrados.Checked = $True
-    $form.Controls.Add($CheckIfTrados)
-
-
-    # OKCANCEL ETC
-    $OKButton = New-Object System.Windows.Forms.Button
-    $OKButton.Location = New-Object System.Drawing.Point(40, (145 + $OFFSET) )
-    $OKButton.Size = New-Object System.Drawing.Size(80,25)
-    $OKButton.Text = 'Verschieben!'
-    $okButton.UseVisualStyleBackColor = $True
-    $OKButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
-    $form.AcceptButton = $OKButton
-    $null = $form.Controls.Add($OKButton)
-    $CancelButton = New-Object System.Windows.Forms.Button
-    $CancelButton.Location = New-Object System.Drawing.Point(135, (145 + $OFFSET))
-    $CancelButton.Size = New-Object System.Drawing.Size(80,25)
-    $CancelButton.Text = 'Nö'
-    $cancelButton.UseVisualStyleBackColor = $True
-    $CancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-    $form.CancelButton = $CancelButton
-    $form.Controls.Add($CancelButton)
-
-
-    #######################
-    # RESULT PROCESSING
-    $form.Topmost = $true
-    $result = $form.ShowDialog()
-    if ($result -eq [System.Windows.Forms.DialogResult]::OK)
+    if ( $file.Directory.FullName.Contains("Downloads") )
     {
-        # Language is first item. Defaults to empty
-        # WHERE is base folder + selected folder. If empty, just root dir
-        $LANG = $listBox.SelectedItem
-        $WHERE = -join($BASEFOLDER,$listBox2.SelectedItem)
-
-        # No language code ? Empty then
-        # Else add underscores to distinguish
-        if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
-        else { $LANG = -join("_",$LANG) }        
-
-        # Get full path
-        $newname = -join($file.BaseName,$LANG,$file.Extension)
-
-        echo "[MOVE] $file"
-        echo "[MOVE] to $WHERE\$newname"
-        Move-Item -Path "$file" -Destination "$WHERE\$newname"
+    	Write-Output "[CASE DETECTED] Uprooted file, should relocate. Use a GUI.."
 
 
-        if ($CheckIfTrados.CheckState.ToString() -eq "Checked")
+
+        #==============
+	    ####### CHECK THE LANGUAGES : Does the file include one ?
+        # By default, consider no.
+        # Go in trados folder, and if theres one folder matching, yes.
+        # OFFSET is there to leave place for asking. If we detect language code we dont need it
+
+
+	    [bool]$LCODE_DETECTED = $false
+        [int]$OFFSET = 90
+
+        cd $STUDIO
+	    $languages =  (dir "*-*" -Directory | Split-Path -leaf)
+
+        # Program sorts out what is in the trados folder, minus non-language code folders
+	    foreach ($folder in $languages) {
+		    if ($filename.Contains($folder))
+            {
+			    Write-Output "LCODE already in - Detected $folder"
+			    [bool] $LCODE_DETECTED = $true
+			    $LCODE = $folder
+                $OFFSET = 0
+            }
+         }
+	    Write-Output "LCODE_DETECTED?: $LCODE_DETECTED"
+
+
+
+
+        #==============
+        # Create a window
+        Add-Type -AssemblyName System.Windows.Forms
+        Add-Type -AssemblyName System.Drawing
+
+        # Lets look cool
+        [void] [System.Windows.Forms.Application]::EnableVisualStyles() 
+
+        $form = New-Object System.Windows.Forms.Form
+        $form.FormBorderStyle = 'FixedDialog'
+        $form.StartPosition = 'CenterScreen'
+        $form.Text = "$APPNAME"
+        $form.Size = New-Object System.Drawing.Size(265,(340 + $OFFSET))
+        $form.MaximizeBox = $false
+
+        $iconBytes = [Convert]::FromBase64String($iconBase64)
+        # initialize a Memory stream holding the bytes
+        $stream = [System.IO.MemoryStream]::new($iconBytes, 0, $iconBytes.Length)
+        $form.Icon = [System.Drawing.Icon]::FromHandle(([System.Drawing.Bitmap]::new($stream).GetHIcon()))
+
+
+
+        #==============
+        # ICON
+        # Remind what file we clickd
+
+        $fileicon = [System.Drawing.Icon]::ExtractAssociatedIcon($file)
+        $img = $fileicon.ToBitmap()
+    
+        $pictureBox = new-object Windows.Forms.PictureBox
+        $pictureBox.Location = New-Object System.Drawing.Point(20,10)
+        $pictureBox.Width = $img.Size.Width
+        $pictureBox.Height = $img.Size.Height
+        $pictureBox.Image = $img;
+        $form.controls.add($pictureBox)
+
+        $fileinfo = New-Object System.Windows.Forms.Label
+        $fileinfo.Location = New-Object System.Drawing.Point(55,20)
+        $fileinfo.Size = New-Object System.Drawing.Size(200,30)
+        $fileinfo.Text = $file.Name
+        $fileinfo.Font = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Italic)
+        $null = $form.Controls.Add($fileinfo)
+
+        #==============
+        # IF WE DETECTED LCODE, ALL FINE, ELSE OFFSET EVERYTHING AND ADD ALL LANGUAGE CODE
+
+
+        if ($LCODE_DETECTED -eq $true)
         {
-                Start-Process "$WHERE\$newname"
+            $label = New-Object System.Windows.Forms.Label
+            $label.Location = New-Object System.Drawing.Point(20,55)
+            $label.Size = New-Object System.Drawing.Size(215,20)
+            $label.Text = "Sprachcode detektiert: $LCODE"
+            $null = $form.Controls.Add($label)
+        }
+        else
+        {
+        
+            $label = New-Object System.Windows.Forms.Label
+            $label.Location = New-Object System.Drawing.Point(20,55)
+            $label.Size = New-Object System.Drawing.Size(215,20)
+            $label.Text = 'Sprachcode Hinzuf gen:'
+            $null = $form.Controls.Add($label)
+
+            $listBox = New-Object System.Windows.Forms.ListBox
+            $listBox.Location = New-Object System.Drawing.Point(20,75)
+            $listBox.Size = New-Object System.Drawing.Size(215,20)
+            $listBox.Height = 90
+
+            # Get all codes + default
+            [void] $listBox.Items.Add("(Kein sprachcode, danke!)") 
+            $listBox.SelectedItem = "(Kein sprachcode, danke!)"
+
+            foreach ($lang in $languages)
+            {
+                $null = $listBox.Items.Add($lang)
+            }
+            $form.Controls.Add($listBox)
         }
 
-        explorer $WHERE
+        #==============
+        # WHAT FOLDER TO PUT THAT IN
+        $label2 = New-Object System.Windows.Forms.Label
+        $label2.Location = New-Object System.Drawing.Point(20,(80 + $OFFSET))
+        $label2.Size = New-Object System.Drawing.Size(215,20)
+        $label2.Text = 'Verschieben nach:'
+        $form.Controls.Add($label2)
 
 
-        exit
-   
+        $listBox2 = New-Object System.Windows.Forms.ListBox
+        $listBox2.Location = New-Object System.Drawing.Point(20,(100 + $OFFSET))
+        $listBox2.Size = New-Object System.Drawing.Size(215,120)
+        $listBox2.Height = 120
+        $listBox2.SelectedItem = ""
 
-    }
-    else {exit}
+        # Get all subdirectories
+        $allfolder =  Get-ChildItem -Path $BASEFOLDER -Directory
+        foreach ($folder in $allfolder)
+            { $null = $listBox2.Items.Add($folder) }
+        $form.Controls.Add($listBox2) ######IF RELEVANT
 
-}
+
+        #==============
+        # ASK IF OPEN IN TRADOS
+        $CheckIfTrados = New-Object System.Windows.Forms.CheckBox        
+        $CheckIfTrados.Location = New-Object System.Drawing.Point(20,(220 + $OFFSET))
+        $CheckIfTrados.Size = New-Object System.Drawing.Size(215,25)
+        $CheckIfTrados.Text = "Öffnen in Trados"
+        $CheckIfTrados.UseVisualStyleBackColor = $True
+        $CheckIfTrados.Checked = $True
+        $form.Controls.Add($CheckIfTrados)
+
+        #==============
+        # OKCANCEL ETC
+        $OKButton = New-Object System.Windows.Forms.Button
+        $OKButton.Location = New-Object System.Drawing.Point(40, (255 + $OFFSET) )
+        $OKButton.Size = New-Object System.Drawing.Size(80,25)
+        $OKButton.Text = 'Verschieben!'
+        $okButton.UseVisualStyleBackColor = $True
+        $OKButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $form.AcceptButton = $OKButton
+        $null = $form.Controls.Add($OKButton)
+        $CancelButton = New-Object System.Windows.Forms.Button
+        $CancelButton.Location = New-Object System.Drawing.Point(135, (255 + $OFFSET))
+        $CancelButton.Size = New-Object System.Drawing.Size(80,25)
+        $CancelButton.Text = 'Nö'
+        $cancelButton.UseVisualStyleBackColor = $True
+        $CancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+        $form.CancelButton = $CancelButton
+        $form.Controls.Add($CancelButton)
 
 
+        #######################
+        # RESULT PROCESSING
+        $form.Topmost = $true
+        $result = $form.ShowDialog()
+        if ($result -eq [System.Windows.Forms.DialogResult]::OK)
+        {
+            # Language is first item. Defaults to empty
+            # WHERE is base folder + selected folder. If empty, just root dir
+            $LANG = $listBox.SelectedItem
+            $WHERE = -join($BASEFOLDER,$listBox2.SelectedItem)
+
+            # No language code ? Empty then
+            # Else add underscores to distinguish
+            if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
+            else { $LANG = -join("_",$LANG) }        
+
+            # Get full path
+            $newname = -join($file.BaseName,$LANG,$file.Extension)
+
+            Write-Output "[MOVE] $file"
+            Write-Output "[MOVE] to $WHERE\$newname"
+            Move-Item -Path "$file" -Destination "$WHERE\$newname"
+
+
+            # If we asked for Trados, open in Trados
+            if ($CheckIfTrados.CheckState.ToString() -eq "Checked")
+            {
+                    Start-Process "$WHERE\$newname"
+            }
+
+            explorer $WHERE
+            exit
+        }
+        else {exit } # End of processing Results.
+
+
+
+
+    } #End of If A Download
+
+    #==============
+    # Not a download, already there. Nice. Carry on.
+    else
+    { Write-Output "[DETECTED] Already in structure."}
+
+
+} # End of Has A Directory Code.
 
 # NEW FILE, DO EVERYTHING
 elseif (($file.FullName.Contains('Downloads') ) -and ( $file.Name.SubString(0, 8) -notmatch "20[0-9][0-9]\-20[0-9][0-9]_*" ) )
 {
-# TODO
-
+    Write-Output "[DETECTED] NO PROJECT - DO A NEW ONE (TODO)"
+    exit
 
 }
 
-
+# CANNOT DETECT
 else
 {
-	echo "[DETECTED] Already in structure."
+
+	Write-Output "idk lol"
+    Write-Output "ninefirst: $file_ninefirst_characters"
+
+    Add-Type -AssemblyName PresentationCore,PresentationFramework
+	$msgBody = "idk. ninefirst: $file_ninefirst_characters"
+	[System.Windows.MessageBox]::Show($msgBody)
+
+    exit
 }
 
 
 
+#============================================================
+#                INDIVIDUAL FILES PROCESSING                =
+#============================================================
 
-
-exit
-
-
-
-############ EXCUTION ############
-
-
-############
+#==============
 # IF REVIEW JUST APPEND SUFFIX AND STOP
 
 if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" -and ( $file.Name.EndsWith(".docx.review")) ))
 {
-	echo "[DETECTED] Bilingual doc."
+	Write-Output "[DETECTED] Bilingual doc."
 	$newname = ( $file.DirectoryName + "__" + $file.Name )
 
-	echo " -- Renaming $file.Name to $newname"
+	Write-Output " -- Renaming $file.Name to $newname"
 	Rename-Item -Path "$file" -NewName "$newname"
 	$file = Get-Item "$newname"
 
 	# move it to correct place
-	echo "TAG: Moving to '05_to proof'"
-	Move-Item -Path "$file" -Destination "..\..\..\..\05_to proof"
+	Write-Output "TAG: Moving to '05_to proof'"
+	Move-Item -Path "$file" -Destination "$BASEFOLDER"
 
 	exit
 }
 
 
 
-############
+#==============
 # IGNORE XLIFF
 
 if ( $file.Name.Contains(".sdlxliff") )
 {
-	echo "[DETECTED] Its an XLIFF ! Ignoring."
+	Write-Output "[DETECTED] Its an XLIFF ! Ignoring."
 	exit
 }
 
 
 
-############
+#==============
 # IF NO PROJECT CODE, ADD PROJECT CODE
 
 if ( $file.Name.SubString(0, 8) -ne $dircode )        #-and (! $file.FullName.Contains("_Final") ) )
 {
-	echo "[DETECTED] $file.Name : No directory code. Adding"
+	Write-Output "[DETECTED] $file.Name : No directory code. Adding"
         $newname = -join($dircode,"_",$file.Name)
 
-	echo " -- Renaming $file.Name to $newname"
+	Write-Output " -- Renaming $file.Name to $newname"
 	Rename-Item -Path "$file" -NewName "$newname"
 	$file = Get-Item "$newname"
 }
 
 
-############
+#==============
 # IF ORIG, AND NO ORIG IN THE NAME, ADD ORIG
 
 
 if (( $file.DirectoryName.Contains("_orig") ) -and (! $file.Name.Contains("_orig") ))
 {
-	echo "[DETECTED] Original file but no _orig detected. Adding."
+	Write-Output "[DETECTED] Original file but no _orig detected. Adding."
 	$newname = -join($file.Basename,"_orig",$file.Extension)
 
-	echo " -- Renaming $file.Name to $newname"
+	Write-Output " -- Renaming $file.Name to $newname"
 	Rename-Item -Path "$file" -NewName "$newname"
 	$file = Get-Item "$newname"
 }
 
 
-
-############
+#==============
 # IF IN COUNTRY CODE FOLDER, ADD COUNTRY CODE, ADD FINAL, MOVE IN FINAL
 
 if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.Contains("_Final") ))
 {
-	echo "[DETECTED] FINAL. No final tag. Adding."
+	Write-Output "[DETECTED] FINAL. No final tag. Adding."
 	$newname = -join($file.Basename.Replace("_orig",""),"_",(Split-Path -Leaf $file.DirectoryName),"_Final",$file.Extension)
 
-	echo " -- Renaming $file.Name to $newname"
+	Write-Output " -- Renaming $file.Name to $newname"
 	Rename-Item -Path "$file" -NewName "$newname"
 	$file = Get-Item "$newname"
 
 	# And move it
-	echo "[ACTION] Moving to '07_to client'"
-	Move-Item -Path "$file" -Destination "..\..\07_to client\"
+	Write-Output "[ACTION] Moving to $TO_CLIENT"
+	Move-Item -Path "$file" -Destination "$TO_CLIENT"
+    explorer $TO_CLIENT
 	exit
 
 }
@@ -378,15 +458,15 @@ if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.C
 
 
 
-############
+#==============
 # IF FINAL BUT NO FINAL ADD FINAL
 
 if (( $file.DirectoryName.Contains("_to client") ) -and (! $file.Name.Contains("_Final") ))
 {
-	echo "[DETECTED] FINAL. No final tag. Unknown LCODE. Adding."
+	Write-Output "[DETECTED] FINAL. No final tag. Unknown LCODE. Adding."
 	$newname = ($file.Basename.Replace("_orig","") + "_Final" + $file.Extension)
 
-	echo " -- Renaming $file.Name to $newname"
+	Write-Output " -- Renaming $file.Name to $newname"
 	Rename-Item -Path "$file" -NewName "$newname"
 	$file = Get-Item "$newname"
 	exit
@@ -395,24 +475,18 @@ if (( $file.DirectoryName.Contains("_to client") ) -and (! $file.Name.Contains("
 
 
 
-############
+#==============
 # IF PO/CO, SORT OUT
 
 #if $path_to_file.Contains("Downloads")
 #{
-#	echo "[DETECTED] PO/CO - SORTING OUT"
+#	Write-Output "[DETECTED] PO/CO - SORTING OUT"
 
 	# Generate correct dircode
 	#$dircode = $dircode.SubString(0, 7)       #$dircode.replace('_','-')
 	# $destination = "M:\9_JOBS_XTRF\" + (Get-ChildItem "$dircode.SubString(0, 7)"  )
 	# $destination = ( "M:\9_JOBS_XTRF\" + "$dircode" + "\00_info\" )	
-	# echo "destination: $destination" 
+	# Write-Output "destination: $destination" 
 	# Move-Item -Path $path_to_file -Destination $destination
 	#exit
 #}
-
-
-############
-# DEBUG
-
-pause
