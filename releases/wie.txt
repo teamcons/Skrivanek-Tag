@@ -1,9 +1,0 @@
-# TAG INSTALLIEREN #
-
--Doppel-clicken auf "install_tag"
--"Ja"
-Es ist installiert !
-
-Dies fügt der Windows-Registrierung einen Eintrag hinzu, der die "Tag"-Funktionalität angibt und wo sie sich befindet (dieser Ordner).
-
-Wenn auf diesen Ordner nicht mehr zugegriffen werden kann (z. B. kein Zugriff auf den Server), funktioniert die Funktionalität nicht mehr.
