@@ -1,19 +1,18 @@
 
 # Skrivanek-Tag
 
-A program to create new projects, in the right place, super super quick and how I want it, because I am lazy and impatient.
+Just a powershell script i use at work, as right-click option.
 
-On the technical aspect, it is a Powershell script, written in imperative style, using Windows.Forms as GUI and compiled into PS2EXE. 
+It just looks for the context a file is invoked upon.
+And then renames it/moves it/whatevers it according to our internal conventions.
 
-I am learning powershell as i write and expand it. Its bound to have some ugly and some clever code.
+Im learning powershell as i write and expand it. Its bound to have some ugly and some clever code.
 
 The manual is for coworkers who may want to use it.
 
-<div align="center">
-    <img src="https://github.com/teamcons/Skrivanek-Rocketlaunch/blob/main/img/Skrivanek-Rocketlaunch.png" /></td>
-</div>
+
 
 # Some more stuff
 
-The rocket icon comes from there
-<a href="https://www.flaticon.com/free-icons/rocket" title="rocket icons">Rocket icons created by Freepik - Flaticon</a>
+The stamp icon comes from there
+<a href="https://www.flaticon.com/free-icons/stamp" title="stamp icons">Stamp icons created by Freepik - Flaticon</a>
