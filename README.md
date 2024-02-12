@@ -12,6 +12,10 @@ The manual is for coworkers who may want to use it.
 
 
 
+Nice huh ?
+
+
+
 # Some more stuff
 
 The stamp icon comes from there
