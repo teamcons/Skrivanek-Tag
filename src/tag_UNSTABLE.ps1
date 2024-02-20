@@ -2,7 +2,7 @@
 
 #----------------INFO----------------
 #
-# CC-BY-SA-NC Stella Ménier <stella.menier@gmx.de>
+# CC-BY-SA-NC Stella Mï¿½nier <stella.menier@gmx.de>
 # Project creator for Skrivanek GmbH
 #
 # Usage add: powershell.exe -executionpolicy bypass -file ".\Rocketlaunch.ps1" "%1"
@@ -50,7 +50,7 @@ Write-Output "======================"
 
 Write-Output ""
 Write-Output "For Skrivanek GmbH - Manage files really, really quick!"
-Write-Output "CC0 Stella Ménier, Project manager Skrivanek BELGIUM - <stella.menier@gmx.de>"
+Write-Output "CC0 Stella Mï¿½nier, Project manager Skrivanek BELGIUM - <stella.menier@gmx.de>"
 Write-Output "Git: https://github.com/teamcons/Skrivanek-Tag"
 Write-Output ""
 Write-Output ""
@@ -273,7 +273,7 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         $CheckIfTrados = New-Object System.Windows.Forms.CheckBox        
         $CheckIfTrados.Location = New-Object System.Drawing.Point(20,(220 + $OFFSET))
         $CheckIfTrados.Size = New-Object System.Drawing.Size(215,25)
-        $CheckIfTrados.Text = "Öffnen in Trados"
+        $CheckIfTrados.Text = "ï¿½ffnen in Trados"
         $CheckIfTrados.UseVisualStyleBackColor = $True
         $CheckIfTrados.Checked = $True
         $form.Controls.Add($CheckIfTrados)
@@ -291,7 +291,7 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         $CancelButton = New-Object System.Windows.Forms.Button
         $CancelButton.Location = New-Object System.Drawing.Point(135, (255 + $OFFSET))
         $CancelButton.Size = New-Object System.Drawing.Size(80,25)
-        $CancelButton.Text = 'Nö'
+        $CancelButton.Text = 'Nï¿½'
         $cancelButton.UseVisualStyleBackColor = $True
         $CancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
         $form.CancelButton = $CancelButton
