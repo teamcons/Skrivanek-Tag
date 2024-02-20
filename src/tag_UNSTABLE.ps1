@@ -355,18 +355,18 @@ elseif (($file.FullName.Contains('Downloads') ) -and ( $file.Name.SubString(0, 8
 }
 
 # CANNOT DETECT
-else
-{
+#else
+#{
 
-	Write-Output "idk lol"
-    Write-Output "ninefirst: $file_ninefirst_characters"
+#	Write-Output "idk lol"
+#    Write-Output "ninefirst: $file_ninefirst_characters"
 
-    Add-Type -AssemblyName PresentationCore,PresentationFramework
-	$msgBody = "idk. ninefirst: $file_ninefirst_characters"
-	[System.Windows.MessageBox]::Show($msgBody)
+#    Add-Type -AssemblyName PresentationCore,PresentationFramework
+#	$msgBody = "idk. ninefirst: $file_ninefirst_characters"
+#	[System.Windows.MessageBox]::Show($msgBody)
 
-    exit
-}
+#    exit
+#}
 
 
 
