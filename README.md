@@ -14,6 +14,9 @@ The manual is for coworkers who may want to use it.
 
 Nice huh ?
 
+<div align="center">
+    <img src="https://github.com/teamcons/Skrivanek-Tag/blob/main/img/Screenshot App.png" /></td>
+</div>
 
 
 # Some more stuff
