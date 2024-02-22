@@ -41,8 +41,6 @@ if (!$arg)
 	exit
 }
 
-
-
 # Fancy !
 Write-Output "======================"
 Write-Output "=        TAG!        ="
@@ -98,17 +96,20 @@ $iconBase64 = "AAABAAEAAAAAAAEAIACVOAAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAEAAAABAAgGA
 
 
 
-$file_ninefirst_characters = $file.Name.SubString(0, 9)
-Write-Output "[DETECTED] Attempt at dircode: $file_ninefirst_characters"
+
+
 
 
 #==============
 # It if has a code
-if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
+if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 {
-
+    Write-Output "[DETECTED] Has a dircode"
 
 	# REBUILT THE WHOLE TREE
+    $file_ninefirst_characters = $file.Name.SubString(0, 9)
+    Write-Output "[DETECTED] Attempt at dircode: $file_ninefirst_characters"
+
 	$DIRCODE = $file_ninefirst_characters
 	$BASEFOLDER = "M:\9_JOBS_XTRF\"
 	$BASEFOLDER = -join($BASEFOLDER,$file_ninefirst_characters.Substring(0,4), "_")
@@ -121,14 +122,30 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
     cd "$BASEFOLDER"
 
+
+    # Grab info 
+    $INFO	= (Get-ChildItem *info | Select-Object -First 1).Name
+    try { Test-Path -Path "$BASEFOLDER\$INFO" }
+    catch { $INFO = $BASEFOLDER }
+    Write-Output "[DETECTED] Info: $INFO"
+
+    # Grab orig
+    $ORIG	= (Get-ChildItem *orig | Select-Object -First 1).Name
+    try { Test-Path -Path "$ORIG"}
+    catch {$ORIG = $BASEFOLDER}
+    Write-Output "[DETECTED] Orig: $ORIG"
+
     # Grab studio
-    $STUDIO	= (Get-ChildItem *trados,*studio).FullName
-	Write-Output "[DETECTED] Studio: $STUDIO"
+    $STUDIO	= (Get-ChildItem *trados,*studio | Select-Object -First 1).Name
+    try {Test-Path -Path "$BASEFOLDER\$STUDIO"}
+    catch {$STUDIO = $BASEFOLDER}
+    Write-Output "[DETECTED] Studio: $STUDIO"
 
-
-    #Grab ToClient
-	$TO_CLIENT = (Get-ChildItem *client).FullName
-	Write-Output "[DETECTED] To_Client: $TO_CLIENT"
+    # Grab client
+    $TO_CLIENT	= (Get-ChildItem *client | Select-Object -First 1).Name
+    try {Test-Path -Path "$BASEFOLDER\$TO_CLIENT"}
+    catch {$TO_CLIENT = $BASEFOLDER}
+    Write-Output "[DETECTED] To client: $TO_CLIENT"
 
 
 
@@ -341,38 +358,71 @@ if ( $file_ninefirst_characters -match "20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     #==============
     # Not a download, already there. Nice. Carry on.
     else
-    { Write-Output "[DETECTED] Already in structure."}
+    { Write-Output "[DETECTED] Already in structure."
+    }
 
 
 } # End of Has A Directory Code.
 
 # NEW FILE, DO EVERYTHING
-elseif (($file.FullName.Contains('Downloads') ) -and ( $file.Name.SubString(0, 8) -notmatch "20[0-9][0-9]\-20[0-9][0-9]_*" ) )
+elseif (($file.FullName -match "Downloads" ) -and ( $file.Name -notmatch "^20[0-9][0-9]\-20[0-9][0-9]_" ) )
 {
     Write-Output "[DETECTED] NO PROJECT - DO A NEW ONE (TODO)"
     exit
 
 }
 
-# CANNOT DETECT
-#else
-#{
+# FILE IN TREE
+elseif ($file.FullName -match "^M:\\9_JOBS_XTRF\\20[0-9][0-9]_[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]\\20[0-9][0-9]\-"  )
+{
 
-#	Write-Output "idk lol"
-#    Write-Output "ninefirst: $file_ninefirst_characters"
+    echo "[DETECTED] Case : In tree but no dircode"
 
-#    Add-Type -AssemblyName PresentationCore,PresentationFramework
-#	$msgBody = "idk. ninefirst: $file_ninefirst_characters"
-#	[System.Windows.MessageBox]::Show($msgBody)
+    $foldername = $file.FullName.ToString().split('\\')[3]
+    $DIRCODE = $foldername.SubString(0, 9)
 
-#    exit
-#}
+	$BASEFOLDER = "M:\9_JOBS_XTRF\"
+	$BASEFOLDER = -join($BASEFOLDER,"\",$file.FullName.ToString().split('\\')[2])
+	$BASEFOLDER = -join($BASEFOLDER,"\",$foldername)
 
+	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
+	Write-Output "[DETECTED] Dircode: $DIRCODE"
+
+    cd "$BASEFOLDER"
+
+    # Grab info 
+    $INFO	= (Get-ChildItem *info | Select-Object -First 1).Name
+    try { Test-Path -Path "$BASEFOLDER\$INFO" }
+    catch { $INFO = $BASEFOLDER }
+    Write-Output "[DETECTED] Info: $INFO"
+
+    # Grab orig
+    $ORIG	= (Get-ChildItem *orig | Select-Object -First 1).Name
+    try { Test-Path -Path "$ORIG"}
+    catch {$ORIG = $BASEFOLDER}
+    Write-Output "[DETECTED] Orig: $ORIG"
+
+    # Grab studio
+    $STUDIO	= (Get-ChildItem *trados,*studio | Select-Object -First 1).Name
+    try {Test-Path -Path "$BASEFOLDER\$STUDIO"}
+    catch {$STUDIO = $BASEFOLDER}
+    Write-Output "[DETECTED] Studio: $STUDIO"
+
+    # Grab client
+    $TO_CLIENT	= (Get-ChildItem *client | Select-Object -First 1).Name
+    try {Test-Path -Path "$BASEFOLDER\$TO_CLIENT"}
+    catch {$TO_CLIENT = $BASEFOLDER}
+    Write-Output "[DETECTED] To client: $TO_CLIENT"
+
+}
 
 
 #============================================================
 #                INDIVIDUAL FILES PROCESSING                =
 #============================================================
+
+Write-Output "[RESTORE PATH] Ready to go !"
+cd $file.Directory.FullName
 
 #==============
 # IF REVIEW JUST APPEND SUFFIX AND STOP
@@ -398,7 +448,7 @@ if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" -and ( $file.Name.Ends
 #==============
 # IGNORE XLIFF
 
-if ( $file.Name.Contains(".sdlxliff") )
+if ( $file.Extension -match ".sdlxliff" )
 {
 	Write-Output "[DETECTED] Its an XLIFF ! Ignoring."
 	exit
@@ -409,14 +459,13 @@ if ( $file.Name.Contains(".sdlxliff") )
 #==============
 # IF NO PROJECT CODE, ADD PROJECT CODE
 
-if ( $file.Name.SubString(0, 8) -ne $dircode )        #-and (! $file.FullName.Contains("_Final") ) )
+if ( $file.Name -notmatch $DIRCODE )        #-and (! $file.FullName.Contains("_Final") ) )
 {
 	Write-Output "[DETECTED] $file.Name : No directory code. Adding"
-        $newname = -join($dircode,"_",$file.Name)
+    $newname = -join($DIRCODE,"_",$file.Name)
 
-	Write-Output " -- Renaming $file.Name to $newname"
-	Rename-Item -Path "$file" -NewName "$newname"
-	$file = Get-Item "$newname"
+	Rename-Item -Path $file.FullName -NewName "$newname"
+    $file = Get-Item $newname
 }
 
 
@@ -424,33 +473,31 @@ if ( $file.Name.SubString(0, 8) -ne $dircode )        #-and (! $file.FullName.Co
 # IF ORIG, AND NO ORIG IN THE NAME, ADD ORIG
 
 
-if (( $file.DirectoryName.Contains("_orig") ) -and (! $file.Name.Contains("_orig") ))
+if (( $file.DirectoryName -match "$ORIG" ) -and (! $file.BaseName.Contains("_orig") ))
 {
 	Write-Output "[DETECTED] Original file but no _orig detected. Adding."
 	$newname = -join($file.Basename,"_orig",$file.Extension)
 
-	Write-Output " -- Renaming $file.Name to $newname"
-	Rename-Item -Path "$file" -NewName "$newname"
-	$file = Get-Item "$newname"
+	Rename-Item -Path $file.FullName -NewName "$newname"
+    $file = Get-Item $newname
 }
 
 
 #==============
 # IF IN COUNTRY CODE FOLDER, ADD COUNTRY CODE, ADD FINAL, MOVE IN FINAL
 
-if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.Contains("_Final") ))
+if (( (Split-Path -Leaf $file.DirectoryName) -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.Contains("_Final") ))
 {
 	Write-Output "[DETECTED] FINAL. No final tag. Adding."
 	$newname = -join($file.Basename.Replace("_orig",""),"_",(Split-Path -Leaf $file.DirectoryName),"_Final",$file.Extension)
 
-	Write-Output " -- Renaming $file.Name to $newname"
-	Rename-Item -Path "$file" -NewName "$newname"
-	$file = Get-Item "$newname"
+	Rename-Item -Path $file.FullName -NewName "$newname"
+	$file = Get-Item $newname
 
 	# And move it
 	Write-Output "[ACTION] Moving to $TO_CLIENT"
 	Move-Item -Path "$file" -Destination "$TO_CLIENT"
-    explorer $TO_CLIENT
+
 	exit
 
 }
@@ -462,14 +509,13 @@ if (( $file.DirectoryName -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.C
 #==============
 # IF FINAL BUT NO FINAL ADD FINAL
 
-if (( $file.DirectoryName.Contains("_to client") ) -and (! $file.Name.Contains("_Final") ))
+if (( $file.DirectoryName -match $TO_CLIENT ) -and (! $file.Name.Contains("_Final") ))
 {
 	Write-Output "[DETECTED] FINAL. No final tag. Unknown LCODE. Adding."
-	$newname = ($file.Basename.Replace("_orig","") + "_Final" + $file.Extension)
+	$newname = -join($file.Basename.Replace("_orig","") + "_Final" + $file.Extension)
 
-	Write-Output " -- Renaming $file.Name to $newname"
-	Rename-Item -Path "$file" -NewName "$newname"
-	$file = Get-Item "$newname"
+	Rename-Item -Path $file.FullName -NewName "$newname"
+    $file = Get-Item $newname
 	exit
 }
 
