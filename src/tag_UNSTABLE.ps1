@@ -240,7 +240,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             $label = New-Object System.Windows.Forms.Label
             $label.Location = New-Object System.Drawing.Point(20,55)
             $label.Size = New-Object System.Drawing.Size(215,20)
-            $label.Text = 'Sprachcode Hinzuf gen:'
+            $label.Text = 'Sprachcode Hinzufügen:'
             $null = $form.Controls.Add($label)
 
             $listBox = New-Object System.Windows.Forms.ListBox
@@ -324,11 +324,25 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
             # No language code ? Empty then
             # Else add underscores to distinguish
-            if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
-            else { $LANG = -join("_",$LANG) }        
+
+            
 
             # Get full path
-            $newname = -join($file.BaseName,$LANG,$file.Extension)
+            if ($file.Extension -match ".docx.review" )
+            {
+                if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
+                else { $LANG = -join($LANG,"__") }
+
+                $newname = -join($LANG,$file.Name)
+            }
+            else {
+                if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
+                else { $LANG = -join("_",$LANG) }
+
+                $newname = -join($file.BaseName,$LANG,$file.Extension)
+            }
+
+
 
             Write-Output "[MOVE] $file"
             Write-Output "[MOVE] to $WHERE\$newname"
@@ -341,7 +355,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
                     Start-Process "$WHERE\$newname"
             }
 
-            explorer $WHERE
+            #explorer $WHERE
             exit
         }
         else {exit } # End of processing Results.
