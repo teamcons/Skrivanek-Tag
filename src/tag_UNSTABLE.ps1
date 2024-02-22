@@ -61,13 +61,9 @@ Write-Output ""
 # Get all important variables in place 
 
 $APPNAME = "Tag!"
-$path_to_file = $arg
 $file = (Get-Item $arg)
-$parent = $file.Directory.Parent.Name
-$filename = $file.Name
 
-
-Write-Output "[PARAMETER] File: $filename"
+Write-Output "[PARAMETER] File: $file.Name"
 Write-Output ""
 
 
@@ -120,7 +116,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
 
 
-    cd "$BASEFOLDER"
+    Set-Location "$BASEFOLDER"
 
 
     # Grab info 
@@ -165,12 +161,12 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 	    [bool]$LCODE_DETECTED = $false
         [int]$OFFSET = 90
 
-        cd $STUDIO
-	    $languages =  (dir "*-*" -Directory | Split-Path -leaf)
+        Set-Location $STUDIO
+	    $languages =  (Get-ChildItem "*-*" -Directory | Split-Path -leaf)
 
         # Program sorts out what is in the trados folder, minus non-language code folders
 	    foreach ($folder in $languages) {
-		    if ($filename.Contains($folder))
+		    if ($file.Name.Contains($folder))
             {
 			    Write-Output "LCODE already in - Detected $folder"
 			    [bool] $LCODE_DETECTED = $true
@@ -376,7 +372,7 @@ elseif (($file.FullName -match "Downloads" ) -and ( $file.Name -notmatch "^20[0-
 elseif ($file.FullName -match "^M:\\9_JOBS_XTRF\\20[0-9][0-9]_[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]\\20[0-9][0-9]\-"  )
 {
 
-    echo "[DETECTED] Case : In tree but no dircode"
+    Write-Output "[DETECTED] Case : In tree but no dircode"
 
     $foldername = $file.FullName.ToString().split('\\')[3]
     $DIRCODE = $foldername.SubString(0, 9)
@@ -388,7 +384,7 @@ elseif ($file.FullName -match "^M:\\9_JOBS_XTRF\\20[0-9][0-9]_[0-9][0-9][0-9][0-
 	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
 	Write-Output "[DETECTED] Dircode: $DIRCODE"
 
-    cd "$BASEFOLDER"
+    Set-Location "$BASEFOLDER"
 
     # Grab info 
     $INFO	= (Get-ChildItem *info | Select-Object -First 1).Name
@@ -422,7 +418,7 @@ elseif ($file.FullName -match "^M:\\9_JOBS_XTRF\\20[0-9][0-9]_[0-9][0-9][0-9][0-
 #============================================================
 
 Write-Output "[RESTORE PATH] Ready to go !"
-cd $file.Directory.FullName
+Set-Location $file.Directory.FullName
 
 #==============
 # IF REVIEW JUST APPEND SUFFIX AND STOP
