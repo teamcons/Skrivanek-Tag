@@ -328,7 +328,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             
 
             # Get full path
-            if ($file.Extension -match ".docx.review" )
+            if ($file.Name -match ".review.docx" )
             {
                 if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
                 else { $LANG = -join($LANG,"__") }
@@ -496,17 +496,21 @@ if (( $file.DirectoryName -match "$ORIG" ) -and (! $file.BaseName.Contains("_ori
 #==============
 # IF IN COUNTRY CODE FOLDER, ADD COUNTRY CODE, ADD FINAL, MOVE IN FINAL
 
-if (( (Split-Path -Leaf $file.DirectoryName) -match "[A-Z][A-Z]\-[A-Z][A-Z]" ) -and (! $file.Name.Contains("_Final") ))
+if ( (Split-Path -Leaf $file.DirectoryName) -match "[A-Z][A-Z]\-[A-Z][A-Z]" )
 {
-	Write-Output "[DETECTED] FINAL. No final tag. Adding."
-	$newname = -join($file.Basename.Replace("_orig",""),"_",(Split-Path -Leaf $file.DirectoryName),"_Final",$file.Extension)
+	Write-Output "[DETECTED] FINAL."
 
-	Rename-Item -Path $file.FullName -NewName "$newname"
-	$file = Get-Item $newname
+    if (! $file.Name.Contains("_Final") )
+    {
+        Write-Output "[RENAME] No final tag. Adding."
+        $newname = -join($file.Basename.Replace("_orig",""),"_",(Split-Path -Leaf $file.DirectoryName),"_Final",$file.Extension)
+        Rename-Item -Path $file.FullName -NewName "$newname"
+        $file = Get-Item $newname
+    }
 
 	# And move it
 	Write-Output "[ACTION] Moving to $TO_CLIENT"
-	Move-Item -Path "$file" -Destination "$TO_CLIENT"
+	Move-Item -Path "$file" -Destination "$BASEFOLDER\$TO_CLIENT"
 
 	exit
 
