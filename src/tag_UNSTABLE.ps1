@@ -162,7 +162,17 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         [int]$OFFSET = 90
 
         Set-Location $STUDIO
-	    $languages =  (Get-ChildItem "*-*" -Directory | Split-Path -leaf)
+
+        # sometimes its in a subfolder
+        if (Test-Path "*.sdlproj" )
+            {
+            $languages =  (Get-ChildItem "*-*" -Directory | Split-Path -leaf)
+            }
+        else {
+            Set-Location (Get-ChildItem)
+            $languages =  (Get-ChildItem "*-*" -Directory | Split-Path -leaf)
+            <# Action when all if and elseif conditions are false #>
+        }
 
         # Program sorts out what is in the trados folder, minus non-language code folders
 	    foreach ($folder in $languages) {
