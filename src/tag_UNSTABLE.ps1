@@ -338,7 +338,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             
 
             # Get full path
-            if ($file.Name -match ".review.docx" )
+            if ($file.Name -match ".review.docx$" )
             {
                 if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
                 else { $LANG = -join($LANG,"__") }
