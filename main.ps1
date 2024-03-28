@@ -29,8 +29,8 @@ param([String]$arg)
 if (!$arg) 
 {
         Add-Type -AssemblyName System.Windows.Forms
-
-	$ERRORTEXT="No! Usage: Right-click on file to process
+        $arg = "C:\Users\stella.Menier\Downloads\2024-0526_Bevaplast.sdlrpx"
+<# 	$ERRORTEXT="No! Usage: Right-click on file to process
 ->Open With->Program on your PC->This executable"
 
 	$btn = [System.Windows.Forms.MessageBoxButtons]::OK
@@ -38,7 +38,7 @@ if (!$arg)
 
 	Add-Type -AssemblyName System.Windows.Forms 
 	[void] [System.Windows.Forms.MessageBox]::Show($ERRORTEXT,$APPNAME,$btn,$ico)
-	exit
+	exit #>
 }
 
 # Fancy !
@@ -63,22 +63,6 @@ else
     if (!$ScriptPath){ $global:ScriptPath = "." } }
 
 
-#========================================
-# Get all resources
-
-# Allow having a fancing GUI
-Add-Type -AssemblyName System.Windows.Forms
-Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName PresentationCore,PresentationFramework
-[void] [System.Windows.Forms.Application]::EnableVisualStyles() 
-
-# Load assets
-$script:icon                = New-Object system.drawing.icon $ScriptPath\assets\stamp.ico
-$script:image               = [system.drawing.image]::FromFile((get-item $ScriptPath\assets\icon-mini.ico))
-
-Import-Module $ScriptPath\sources\ui-askdetails.ps1
-
-
 
 
 #========================================
@@ -90,6 +74,24 @@ $file = (Get-Item $arg)
 Write-Output "[PARAMETER] File: $file.Name"
 Write-Output ""
 
+
+
+
+
+
+#========================================
+# Get all resources
+
+# Allow having a fancing GUI
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName PresentationCore,PresentationFramework
+[void] [System.Windows.Forms.Application]::EnableVisualStyles() 
+
+# Load assets
+$script:icon                = New-Object system.drawing.icon $ScriptPath\assets\stamp.ico
+
+Import-Module $ScriptPath\sources\ui-askdetails.ps1
 
 
 
@@ -172,7 +174,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
 
 	    [bool]$LCODE_DETECTED = $false
-        [int]$OFFSET = 90
+
 
         Set-Location $STUDIO
 
@@ -194,7 +196,6 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 			    Write-Output "LCODE already in - Detected $folder"
 			    [bool] $LCODE_DETECTED = $true
 			    $LCODE = $folder
-                $OFFSET = 0
             }
          }
 	    Write-Output "LCODE_DETECTED?: $LCODE_DETECTED"
@@ -209,7 +210,6 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         $pictureBox.Width       = $img.Size.Width
         $pictureBox.Height      = $img.Size.Height
         $pictureBox.Image       = $img;
-
         $fileinfo.Text          = $file.Name
 
 
@@ -217,41 +217,31 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
         # IF WE DETECTED LCODE, ALL FINE, ELSE OFFSET EVERYTHING AND ADD ALL LANGUAGE CODE
         if ($LCODE_DETECTED -eq $true)
         {
-            $label = New-Object System.Windows.Forms.Label
-            $label.Location = New-Object System.Drawing.Point(20,55)
-            $label.Size = New-Object System.Drawing.Size(215,20)
-            $label.Text = "Sprachcode detektiert: $LCODE"
-            $null = $form.Controls.Add($label)
+            # We detektened it
+            $label.Text                     = "Sprachcode detektiert: $LCODE"
         }
         else
         {
-        
-            $label = New-Object System.Windows.Forms.Label
-            $label.Location = New-Object System.Drawing.Point(20,55)
-            $label.Size = New-Object System.Drawing.Size(215,20)
-            $label.Text = 'Sprachcode Hinzufügen:'
-            $null = $form.Controls.Add($label)
+            # We dint
+            $label.Text                     = 'Sprachcode Hinzufügen:'
 
-            $listBox = New-Object System.Windows.Forms.ListBox
-            $listBox.Location = New-Object System.Drawing.Point(20,75)
-            $listBox.Size = New-Object System.Drawing.Size(215,20)
-            $listBox.Height = 90
+            # Make space
+            [int]$OFFSET                    = 90
+            $form.Height                   += $OFFSET
+            $label2.top                    += $OFFSET
+            $listBox2.top                  += $OFFSET
+            $CheckIfTrados.top             += $OFFSET
+            $OKButton.top                  += $OFFSET
+            $CancelButton.top              += $OFFSET            
 
             # Get all codes + default
-            [void] $listBox.Items.Add("(Kein sprachcode, danke!)") 
-            $listBox.SelectedItem = "(Kein sprachcode, danke!)"
+            [void]$listBox.Items.Add("(Kein sprachcode, danke!)") 
+            $listBox.SelectedItem = $listBox.Items[0]
 
             foreach ($lang in $languages)
-            {
-                $null = $listBox.Items.Add($lang)
-            }
-            $form.Controls.Add($listBox)
+            { [void]$listBox.Items.Add($lang)}
+            [void]$form.Controls.Add($listBox)
         }
-
-   
-        $label2.Location = New-Object System.Drawing.Point(20,(80 + $OFFSET))
-        $listBox2.Location = New-Object System.Drawing.Point(20,(100 + $OFFSET))
-
 
         # Get all subdirectories
         $allfolder =  Get-ChildItem -Path $BASEFOLDER -Directory
@@ -259,9 +249,6 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             { $null = $listBox2.Items.Add($folder) }
 
 
-        $CheckIfTrados.Location = New-Object System.Drawing.Point(20,(220 + $OFFSET))
-        $OKButton.Location = New-Object System.Drawing.Point(40, (255 + $OFFSET) )
-        $CancelButton.Location = New-Object System.Drawing.Point(135, (255 + $OFFSET))
 
 
         #######################
