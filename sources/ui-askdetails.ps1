@@ -107,7 +107,7 @@ $label2.Left                    = $leftalign
 $listBox2.Left                  = $leftalign
 $CheckIfTrados.Left             = $leftalign
 $OKButton.Left                  = $leftalign + 15
-$CancelButton.Left              = $leftalign + 120
+$CancelButton.Left              = $leftalign + 125
 
 
 
