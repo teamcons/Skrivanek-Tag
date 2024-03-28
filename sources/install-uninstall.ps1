@@ -13,8 +13,8 @@ $IsInstalled = Test-Path -Path $REG_PATH
 
 
 # Install commands
-$ICO = Get-Item ..\assets\stamp.ico).FullName
-$EXE = Get-Item .\tag_stable.ps1).FullName
+$ICO = (Get-Item ..\assets\stamp.ico).FullName
+$EXE = (Get-Item .\tag_stable.ps1).FullName
 
 New-Item -Path $REG_PATH
 New-ItemProperty -Path $REG_PATH -Name "(Standard)" -Value "Tag - Schnell umbenennen"
