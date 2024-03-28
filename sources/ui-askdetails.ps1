@@ -30,11 +30,11 @@ $form.Icon                  = $icon
 
 #================================================================
 $pictureBox                     = new-object Windows.Forms.PictureBox
-$pictureBox.Location            = New-Object System.Drawing.Point(20,10)
+$pictureBox.Location            = New-Object System.Drawing.Point(10,10)
 
 $fileinfo                       = New-Object System.Windows.Forms.Label
 $fileinfo.Size                  = New-Object System.Drawing.Size(200,30)
-$fileinfo.Location              = New-Object System.Drawing.Point(55,20)
+$fileinfo.Location              = New-Object System.Drawing.Point(45,20)
 $fileinfo.Font                  = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Italic)
 
 
