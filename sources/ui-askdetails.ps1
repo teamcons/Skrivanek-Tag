@@ -90,7 +90,7 @@ $form.CancelButton              = $CancelButton
 [int]$leftalign = 10
 
 
-$form.Height                      = 330
+$form.Height                      = 320
 $label.top                    = 55
 $listBox.top                    = 75
 $label2.top                    = 80
@@ -100,7 +100,7 @@ $OKButton.top                  = 255
 $CancelButton.top              = 255
 
 
-$form.Width                     = 260
+$form.Width                     = 255
 $label.Left                     = $leftalign
 $listBox.Left                   = $leftalign
 $label2.Left                    = $leftalign
