@@ -20,9 +20,9 @@
 #-------------------------------------
 
 
-#===============================================
-#                Initialization                =
-#===============================================
+    #===============================================
+    #                Initialization                =
+    #===============================================
 
 # args
 param([String]$arg)
@@ -129,8 +129,6 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
 	$BASEFOLDER = -join($BASEFOLDER,(Get-ChildItem -Path $BASEFOLDER -Directory -Filter "$DIRCODE*"),"\")
 	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
-
-
     Set-Location "$BASEFOLDER"
 
 
@@ -202,45 +200,21 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 	    Write-Output "LCODE_DETECTED?: $LCODE_DETECTED"
 
 
-        $form = New-Object System.Windows.Forms.Form
-        $form.FormBorderStyle = 'FixedDialog'
-        $form.StartPosition = 'CenterScreen'
-        $form.Text = "$APPNAME"
-        $form.Size = New-Object System.Drawing.Size(265,(340 + $OFFSET))
-        $form.MaximizeBox = $false
-
-        $iconBytes = [Convert]::FromBase64String($iconBase64)
-        # initialize a Memory stream holding the bytes
-        $stream = [System.IO.MemoryStream]::new($iconBytes, 0, $iconBytes.Length)
-        $form.Icon = $icon
-
-
-
         #==============
         # ICON
         # Remind what file we clickd
 
-        $fileicon = [System.Drawing.Icon]::ExtractAssociatedIcon($file)
-        $img = $fileicon.ToBitmap()
-    
-        $pictureBox = new-object Windows.Forms.PictureBox
-        $pictureBox.Location = New-Object System.Drawing.Point(20,10)
-        $pictureBox.Width = $img.Size.Width
-        $pictureBox.Height = $img.Size.Height
-        $pictureBox.Image = $img;
-        [void]$form.controls.add($pictureBox)
+        $fileicon               = [System.Drawing.Icon]::ExtractAssociatedIcon($file)
+        $img                    = $fileicon.ToBitmap()
+        $pictureBox.Width       = $img.Size.Width
+        $pictureBox.Height      = $img.Size.Height
+        $pictureBox.Image       = $img;
 
-        $fileinfo = New-Object System.Windows.Forms.Label
-        $fileinfo.Location = New-Object System.Drawing.Point(55,20)
-        $fileinfo.Size = New-Object System.Drawing.Size(200,30)
-        $fileinfo.Text = $file.Name
-        $fileinfo.Font = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Italic)
-        [void]$form.Controls.Add($fileinfo)
+        $fileinfo.Text          = $file.Name
+
 
         #==============
         # IF WE DETECTED LCODE, ALL FINE, ELSE OFFSET EVERYTHING AND ADD ALL LANGUAGE CODE
-
-
         if ($LCODE_DETECTED -eq $true)
         {
             $label = New-Object System.Windows.Forms.Label
@@ -274,61 +248,25 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             $form.Controls.Add($listBox)
         }
 
-        #==============
-        # WHAT FOLDER TO PUT THAT IN
-        $label2 = New-Object System.Windows.Forms.Label
+   
         $label2.Location = New-Object System.Drawing.Point(20,(80 + $OFFSET))
-        $label2.Size = New-Object System.Drawing.Size(215,20)
-        $label2.Text = 'Verschieben nach:'
-        $form.Controls.Add($label2)
-
-
-        $listBox2 = New-Object System.Windows.Forms.ListBox
         $listBox2.Location = New-Object System.Drawing.Point(20,(100 + $OFFSET))
-        $listBox2.Size = New-Object System.Drawing.Size(215,120)
-        $listBox2.Height = 120
-        $listBox2.SelectedItem = ""
+
 
         # Get all subdirectories
         $allfolder =  Get-ChildItem -Path $BASEFOLDER -Directory
         foreach ($folder in $allfolder)
             { $null = $listBox2.Items.Add($folder) }
-        $form.Controls.Add($listBox2) ######IF RELEVANT
 
 
-        #==============
-        # ASK IF OPEN IN TRADOS
-        $CheckIfTrados = New-Object System.Windows.Forms.CheckBox        
         $CheckIfTrados.Location = New-Object System.Drawing.Point(20,(220 + $OFFSET))
-        $CheckIfTrados.Size = New-Object System.Drawing.Size(215,25)
-        $CheckIfTrados.Text = "�ffnen in Trados"
-        $CheckIfTrados.UseVisualStyleBackColor = $True
-        $CheckIfTrados.Checked = $True
-        $form.Controls.Add($CheckIfTrados)
-
-        #==============
-        # OKCANCEL ETC
-        $OKButton = New-Object System.Windows.Forms.Button
         $OKButton.Location = New-Object System.Drawing.Point(40, (255 + $OFFSET) )
-        $OKButton.Size = New-Object System.Drawing.Size(80,25)
-        $OKButton.Text = 'Verschieben!'
-        $okButton.UseVisualStyleBackColor = $True
-        $OKButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
-        $form.AcceptButton = $OKButton
-        $null = $form.Controls.Add($OKButton)
-        $CancelButton = New-Object System.Windows.Forms.Button
         $CancelButton.Location = New-Object System.Drawing.Point(135, (255 + $OFFSET))
-        $CancelButton.Size = New-Object System.Drawing.Size(80,25)
-        $CancelButton.Text = 'N�'
-        $cancelButton.UseVisualStyleBackColor = $True
-        $CancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
-        $form.CancelButton = $CancelButton
-        $form.Controls.Add($CancelButton)
 
 
         #######################
         # RESULT PROCESSING
-        $form.Topmost = $true
+
         $result = $form.ShowDialog()
         if ($result -eq [System.Windows.Forms.DialogResult]::OK)
         {
