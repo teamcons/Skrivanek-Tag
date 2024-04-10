@@ -304,7 +304,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
                     Set-Location $TRADOSDIR
                     }
             
-                .\SDLTradosStudio.exe /openPackage "$WHERE\$newname"            
+                .\SDLTradosStudio.exe /openPackage $WHERE\$newname            
             }
 
             #explorer $WHERE
