@@ -292,7 +292,19 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             # If we asked for Trados, open in Trados
             if ($CheckIfTrados.CheckState.ToString() -eq "Checked")
             {
-                    Start-Process "$WHERE\$newname"
+                   
+                Write-Output "Starting Trados Studio..."
+                # May not be where expected
+                try {
+                    Set-Location "C:\Program Files (x86)\Trados\Trados Studio\Studio17"
+                    }
+                catch { 
+                    $TRADOSDIR = (Get-ChildItem -Path "C:\Program Files (x86)" -Filter *.sdlproj -Recurse -ErrorAction SilentlyContinue -Force -File).Directory.FullName
+                    Write-Output "[DETECTED] Trados in $TRADOSDIR"
+                    Set-Location $TRADOSDIR
+                    }
+            
+                .\SDLTradosStudio.exe $WHERE\$newname            
             }
 
             #explorer $WHERE
