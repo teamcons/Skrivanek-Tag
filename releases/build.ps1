@@ -16,10 +16,10 @@ ps2exe `
 -noConsole `
 -noOutput `
 -exitOnCancel `
--title "Tag! - Fuer Skrivanek" `
+-title "Tag!" `
 -description "Schnell dateien bearbeiten !" `
 -company "Skrivanek GmbH" `
--copyright "CC0 1.0 Universal Stella - stella.menier@gmx.de" `
+-copyright "GNU GPL v3 Stella - stella.menier@gmx.de" `
 -version 0.9 `
 -Verbose `
 -outputFile $ScriptPath\..\Tag.exe
