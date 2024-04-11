@@ -365,8 +365,12 @@ elseif ($file.FullName -match "^M:\\9_JOBS_XTRF\\20[0-9][0-9]_[0-9][0-9][0-9][0-
     Write-Output "[DETECTED] Orig: $ORIG"
 
     # Grab studio
-    $STUDIO	= (Get-ChildItem *trados,*studio | Select-Object -First 1).Name
-    try {Test-Path -Path "$BASEFOLDER\$STUDIO"}
+    # Sometimes the files are in a subfolder and theres several trados folders. So Search the correct one
+    $STUDIO	= (Get-ChildItem *trados,*studio).FullName
+    $STUDIO	= (Get-ChildItem  -Path $STUDIO -Filter (-join($file.BaseName,".sdlproj")) -Recurse).Directory.FullName
+
+    # If the script cant find for shit, just grab basefolder
+    try {Test-Path -Path "$STUDIO"}
     catch {$STUDIO = $BASEFOLDER}
     Write-Output "[DETECTED] Studio: $STUDIO"
 
