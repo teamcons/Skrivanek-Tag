@@ -29,7 +29,7 @@ param([String]$arg)
 if (!$arg) 
 {
         Add-Type -AssemblyName System.Windows.Forms
-        $arg = "C:\Users\stella.Menier\Downloads\2024-0526_Bevaplast.sdlrpx"
+        $arg = "C:\Users\stella.Menier\Downloads\2024-0829_Yanmar_FR.sdlrpx"
 <# 	$ERRORTEXT="No! Usage: Right-click on file to process
 ->Open With->Program on your PC->This executable"
 
@@ -131,7 +131,7 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
 	$BASEFOLDER = -join($BASEFOLDER,(Get-ChildItem -Path $BASEFOLDER -Directory -Filter "$DIRCODE*"),"\")
 	Write-Output "[DETECTED] Base folder: $BASEFOLDER"
-    Set-Location "$BASEFOLDER"
+    Set-Location $BASEFOLDER
 
 
     # Grab info 
@@ -147,7 +147,17 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
     Write-Output "[DETECTED] Orig: $ORIG"
 
     # Grab studio
-    $STUDIO	= (Get-ChildItem *trados,*studio | Select-Object -First 1).Name
+    $STUDIO	= (Get-ChildItem *trados,*studio | Select-Object -First 1).FullName
+
+
+    # Sometimes the files are in a subfolder and theres several trados folders.
+    #So if no SDL projet not immediately there, dig deeper
+    if ((Get-ChildItem -Path $STUDIO -Filter "*.sdlproj") -eq $none )
+    {
+        $STUDIO	= (Get-ChildItem  -Path $STUDIO -Filter (-join($file.BaseName,"*.sdlproj")) -Recurse).Directory.FullName
+    }
+
+    # If the script cant find for shit, just grab basefolder
     try {Test-Path -Path "$BASEFOLDER\$STUDIO"}
     catch {$STUDIO = $BASEFOLDER}
     Write-Output "[DETECTED] Studio: $STUDIO"
