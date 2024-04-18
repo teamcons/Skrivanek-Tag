@@ -29,7 +29,8 @@ param([String]$arg)
 if (!$arg) 
 {
         Add-Type -AssemblyName System.Windows.Forms
-        $arg = "C:\Users\stella.Menier\Downloads\2024-0829_Yanmar_FR.sdlrpx"
+        # Debut by using this file
+        $arg = "C:\Users\stella.Menier\Downloads\2024-0896_Sterile Blister plaster - EN_v2_orig.docx.review.docx"
 <# 	$ERRORTEXT="No! Usage: Right-click on file to process
 ->Open With->Program on your PC->This executable"
 
@@ -151,10 +152,16 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
 
 
     # Sometimes the files are in a subfolder and theres several trados folders.
-    #So if no SDL projet not immediately there, dig deeper
+    # So if no SDL projet not immediately there, dig deeper
     if ((Get-ChildItem -Path $STUDIO -Filter "*.sdlproj") -eq $none )
     {
         $STUDIO	= (Get-ChildItem  -Path $STUDIO -Filter (-join($file.BaseName,"*.sdlproj")) -Recurse).Directory.FullName
+
+        # If attempt fails, fall back to anything that has a sdlproj
+        if ($STUDIO -eq $none )
+        {
+            $STUDIO	= (Get-ChildItem  -Path $STUDIO -Filter "*.sdlproj" -Recurse).Directory.FullName
+        }
     }
 
     # If the script cant find for shit, just grab basefolder
