@@ -30,7 +30,7 @@ if (!$arg)
 {
         Add-Type -AssemblyName System.Windows.Forms
         # Debut by using this file
-        $arg = "C:\Users\stella.Menier\Downloads\2024-0896_Sterile Blister plaster - EN_v2_orig.docx.review.docx"
+        $arg = "M:\9_JOBS_XTRF\2024_1000-1099\2024-1004_Bevaplast\05_to client\2024-1004_7934 DE-TU_Final.docx"
 <# 	$ERRORTEXT="No! Usage: Right-click on file to process
 ->Open With->Program on your PC->This executable"
 
