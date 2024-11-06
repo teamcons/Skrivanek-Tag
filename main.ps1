@@ -116,7 +116,7 @@ Import-Module $ScriptPath\sources\ui-askdetails.ps1
 
 #==============
 # It if has a code
-if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
+if ( $file.Name -match "^20[0-9][0-9]\-[0-9]{1,4}_" )
 {
     Write-Output "[DETECTED] Has a dircode"
 
@@ -266,6 +266,11 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             { $null = $listBox2.Items.Add($folder) }
 
 
+        # Review files cant be opened directly by Trados
+        if ($file.Name -match ".review.docx$" )
+        {
+            $CheckIfTrados.Checked = $false
+        }
 
 
         #######################
@@ -282,32 +287,40 @@ if ( $file.Name -match "^20[0-9][0-9]\-[0-9][0-9][0-9][0-9]" )
             # No language code ? Empty then
             # Else add underscores to distinguish
 
-            
-
-            # Get full path
-            if ($file.Name -match ".review.docx$" )
+            # Review file needs to be in a folder with language code
+            if (($file.Name -match ".review.docx$" ) -and ($LANG -ne "(Kein sprachcode, danke!)"))
             {
-                if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
-                else { $LANG = -join($LANG,"__") }
 
-                $newname = -join($LANG,$file.Name)
+                # No language code folder ? Create it
+                if(!(Test-Path $WHERE\$LANG))
+                {
+                    New-Item -Path "$WHERE\$LANG" -ItemType Directory
+                }
+
+                Write-Output "[MOVE] $file"
+                Write-Output "[MOVE] to $WHERE\$LANG"
+                Move-Item -Path "$file" -Destination "$WHERE\$LANG"
+
+
             }
             else {
                 if ($LANG -eq "(Kein sprachcode, danke!)") { $LANG = "" }
                 else { $LANG = -join("_",$LANG) }
 
                 $newname = -join($file.BaseName,$LANG,$file.Extension)
+
+
+                Write-Output "[MOVE] $file"
+                Write-Output "[MOVE] to $WHERE\$newname"
+                Move-Item -Path "$file" -Destination "$WHERE\$newname"
+
             }
 
 
 
-            Write-Output "[MOVE] $file"
-            Write-Output "[MOVE] to $WHERE\$newname"
-            Move-Item -Path "$file" -Destination "$WHERE\$newname"
-
 
             # If we asked for Trados, open in Trados
-            if ($CheckIfTrados.CheckState.ToString() -eq "Checked")
+            if ($CheckIfTrados.Checked)
             {
                    
                 Write-Output "Starting Trados Studio..."
